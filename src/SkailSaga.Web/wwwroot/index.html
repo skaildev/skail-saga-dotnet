@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Order saga · skail demo</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Order saga</h1>
+      <p class="subtitle">A skail function closes an order: it reserves the stock, charges the card and issues the invoice. If a step does not work out, it undoes the previous ones in reverse order, with plain <code>if</code> and <code>try/catch</code>.</p>
+    </header>
+
+    <section>
+      <h2>Place an order</h2>
+      <p class="hint">Four orders, four paths. Each button places an order and starts a <code>CloseOrder</code> execution in skail.</p>
+      <div class="buttons" id="scenarios">
+        <button type="button" data-product="Monitor" data-quantity="1" data-amount="1200" data-card="4111111111111111">Confirmed <small>the gateway times out once, then it goes through</small></button>
+        <button type="button" data-product="Monitor" data-quantity="1" data-amount="1200" data-card="4000000000000002">Card declined <small>the stock comes back</small></button>
+        <button type="button" data-product="Cabo HDMI" data-quantity="2" data-amount="60" data-card="4111111111111111">Invoice rejected <small>the charge is refunded, then the stock comes back</small></button>
+        <button type="button" data-product="Monitor" data-quantity="6" data-amount="7200" data-card="4111111111111111">Out of stock <small>nothing is charged</small></button>
+      </div>
+      <div class="buttons">
+        <button type="button" id="reset" class="secondary">Reset demo</button>
+        <span id="sent" class="sent"></span>
+      </div>
+      <p id="error" class="error" hidden></p>
+    </section>
+
+    <section>
+      <h2>Stock</h2>
+      <table>
+        <thead><tr><th>Product</th><th>Available</th><th>Reserved</th></tr></thead>
+        <tbody id="stock"></tbody>
+      </table>
+      <p class="hint">A reservation that is undone puts the units back.</p>
+    </section>
+
+    <section>
+      <h2>Orders</h2>
+      <p id="ordersEmpty" class="hint">No orders yet.</p>
+      <div id="orders"></div>
+      <p class="hint">Each order lists what happened outside, in order. <span class="undo">↩</span> marks a compensation: it undoes a step that came before. Execution is the task id in skail; search for it in the Monitor.</p>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

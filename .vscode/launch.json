@@ -1,0 +1,45 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Worker",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/src/SkailSaga.Worker/bin/Debug/net8.0/SkailSaga.Worker.dll",
+      "cwd": "${workspaceFolder}/src/SkailSaga.Worker",
+      "envFile": "${workspaceFolder}/.env",
+      "env": {
+        // outside a container the web app is on localhost
+        "WEB_BASE_URL": "http://localhost:8080"
+      },
+      "console": "internalConsole",
+      "stopAtEntry": false
+    },
+    {
+      "name": "Web",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/src/SkailSaga.Web/bin/Debug/net8.0/SkailSaga.Web.dll",
+      "cwd": "${workspaceFolder}/src/SkailSaga.Web",
+      "envFile": "${workspaceFolder}/.env",
+      "env": {
+        "ASPNETCORE_URLS": "http://localhost:8080"
+      },
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+      },
+      "console": "internalConsole",
+      "stopAtEntry": false
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Worker + Web",
+      "configurations": ["Web", "Worker"],
+      "stopAll": true
+    }
+  ]
+}
