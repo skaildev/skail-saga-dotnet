@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Saga · skail demo</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 26'%3E%3Cpath d='M25.4385 18.2557L7.28223 18.2538L7.28125 4.53796C7.28123 3.98936 7.21634 0.353387 7.32422 0.00280762C13.2929 0.0779445 19.4626 0.0104719 25.4414 0.00280762L25.4385 18.2557ZM10.917 7.30261L18.1797 7.30164L18.1777 14.6083L21.8213 14.6102V3.6532C18.2322 3.65317 14.494 3.70895 10.918 3.64734L10.917 7.30261Z' fill='%2368057F'/%3E%3Cpath d='M0 14.609L3.6314 14.6068L3.6293 21.8979L10.9159 21.8957L10.9154 25.5448L2.61941e-05 25.5414L0 14.609Z' fill='%23E8611C'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* skail brand tokens, from skail.dev */
+    :root {
+      --bg: #ffffff; --bg2: #f7f7f8; --bg3: #f0f0f2; --card: #fafafb;
+      --ink: #111114; --ink2: #4b4c54; --ink3: #8a8b94;
+      --line: #ebebee; --line2: #dfdfe4;
+      --brand: #68057F; --brand2: #8b2fa8; --brand-soft: #f5edf8; --orange: #E8611C;
+      --ok: #17914f; --ok-soft: #e8f6ee; --run: #2d6be4; --run-soft: #e9f0fd;
+      --err: #d6363b; --err-soft: #fcebec; --warn: #b7791f; --warn-soft: #fdf4e3;
+      --sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+      --r: 14px;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg2); color: var(--ink); font: 16px/1.55 var(--sans); -webkit-font-smoothing: antialiased; }
+    a { color: var(--brand); }
+    .nav { background: var(--bg); border-bottom: 1px solid var(--line); }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 0 20px; }
+    .nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; }
+    .logo { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 19px; letter-spacing: -.03em; color: var(--ink); text-decoration: none; }
+    .chip { font-size: 12px; padding: 2px 9px; border-radius: 7px; border: 1px solid var(--line2); background: var(--bg); color: var(--ink2); font-weight: 500; }
+    main.wrap { padding-top: 44px; padding-bottom: 60px; }
+    h1 { font-size: clamp(30px, 4.5vw, 44px); line-height: 1.05; letter-spacing: -.04em; font-weight: 500; margin: 0 0 12px; }
+    .lead { color: var(--ink2); max-width: 720px; margin: 0 0 28px; }
+    .bar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 24px; }
+    .btn { display: inline-flex; align-items: center; height: 40px; padding: 0 18px; border-radius: 999px; border: 0; font: 500 14px var(--sans); cursor: pointer; }
+    .btn-dark { background: var(--ink); color: #fff; }
+    .btn-brand { background: var(--brand); color: #fff; }
+    .btn-line { background: var(--bg); color: var(--err); border: 1px solid var(--line2); }
+    .btn:disabled { opacity: .35; cursor: not-allowed; }
+    .muted { color: var(--ink3); font-size: 14px; }
+    .mono { font-family: var(--mono); }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .card { background: var(--bg); border: 1px solid var(--line); border-radius: var(--r); padding: 20px; }
+    .card h2 { display: flex; justify-content: space-between; align-items: center; font-size: 17px; font-weight: 600; margin: 0 0 14px; letter-spacing: -.01em; }
+    .actions { display: flex; align-items: center; gap: 8px; }
+    .pill { font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 999px; }
+    .running { background: var(--run-soft); color: var(--run); }
+    .confirmed { background: var(--ok-soft); color: var(--ok); }
+    .payment-declined, .cancelled-with-refund, .out-of-stock { background: var(--err-soft); color: var(--err); }
+    .grid.wide { grid-template-columns: 1fr 2fr; }
+    .pill, td.mono { white-space: nowrap; }
+    @media (max-width: 720px) { .grid.wide { grid-template-columns: 1fr; } }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); }
+    th { color: var(--ink3); font-weight: 500; }
+    .stock { display: flex; gap: 28px; flex-wrap: wrap; }
+    .stock b { display: block; font-size: 22px; font-weight: 500; }
+    .timeline .order { color: var(--brand); margin-right: 8px; }
+    .timeline .comp { color: var(--err); }
+    .result { border-radius: var(--r); padding: 14px 18px; font-weight: 500; margin-bottom: 16px; }
+    .result.archived { background: var(--ok-soft); color: var(--ok); }
+    .result.cancelled { background: var(--err-soft); color: var(--err); }
+    .result.expired { background: var(--warn-soft); color: var(--warn); }
+    .timeline { list-style: none; margin: 0; padding: 0; font: 13px/1.7 var(--mono); color: var(--ink2); }
+    .timeline time { color: var(--ink3); margin-right: 10px; }
+    .empty { color: var(--ink3); font-size: 14px; }
+    footer { color: var(--ink3); font-size: 13px; margin-top: 28px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="wrap">
+      <a class="logo" href="https://skail.dev" target="_blank" rel="noopener">
+        <svg width="20" height="20" viewBox="0 0 26 26" fill="none" aria-hidden="true"><path d="M25.4385 18.2557L7.28223 18.2538L7.28125 4.53796C7.28123 3.98936 7.21634 0.353387 7.32422 0.00280762C13.2929 0.0779445 19.4626 0.0104719 25.4414 0.00280762L25.4385 18.2557ZM10.917 7.30261L18.1797 7.30164L18.1777 14.6083L21.8213 14.6102V3.6532C18.2322 3.65317 14.494 3.70895 10.918 3.64734L10.917 7.30261Z" fill="#68057F"/><path d="M0 14.609L3.6314 14.6068L3.6293 21.8979L10.9159 21.8957L10.9154 25.5448L2.61941e-05 25.5414L0 14.609Z" fill="#E8611C"/></svg>
+        skail <span class="chip">demo</span>
+      </a>
+      <a class="muted" href="https://docs.skail.dev" target="_blank" rel="noopener">Docs</a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <h1>Saga</h1>
+    <p class="lead">A skail function closes an order: it reserves the stock, charges the card and issues the invoice.
+      When a step does not work out, it undoes the previous ones in reverse order. The first charge attempt of every
+      order times out, so you can see skail try again about 15 seconds later.</p>
+
+    <div class="bar">
+      <button class="btn btn-dark" onclick="post('/api/orders/all')">Place one order per path</button>
+      <button class="btn btn-line" style="color: var(--ink)" onclick="post('/api/reset')">Reset stock</button>
+    </div>
+    <div class="bar">
+      <button class="btn btn-brand" onclick="post('/api/orders/confirmed')">Confirmed</button>
+      <button class="btn btn-brand" onclick="post('/api/orders/declined')">Card declined</button>
+      <button class="btn btn-brand" onclick="post('/api/orders/invoice')">Invoice rejected</button>
+      <button class="btn btn-brand" onclick="post('/api/orders/stock')">Out of stock</button>
+    </div>
+
+    <div class="grid wide">
+      <section class="card">
+        <h2>Stock</h2>
+        <div id="stock" class="stock"></div>
+      </section>
+      <section class="card">
+        <h2>Orders</h2>
+        <table>
+          <thead><tr><th>Order</th><th>Items</th><th>Amount</th><th>Card</th><th>Result</th></tr></thead>
+          <tbody id="orders"></tbody>
+        </table>
+        <p id="noOrders" class="empty">No orders yet.</p>
+      </section>
+    </div>
+
+    <section class="card">
+      <h2>What happened</h2>
+      <ol id="timeline" class="timeline"></ol>
+      <p id="empty" class="empty">Place an order to start. Lines with ↩ are compensations.</p>
+    </section>
+
+    <footer>This is a demo, not production code: the stock, the payment gateway and the invoice issuer are simulated, and
+      the card numbers are test numbers. Each step is also in the <a href="https://docs.skail.dev/referencia/portal/monitor" target="_blank" rel="noopener">skail Monitor</a>.</footer>
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const esc = (t) => String(t).replace(/</g, "&lt;");
+    const money = (v) => "R$ " + Number(v).toLocaleString("en-US", { minimumFractionDigits: 2 });
+    let state = {};
+
+    async function post(url) {
+      const response = await fetch(url, { method: "POST" });
+      if (!response.ok) alert(`The app answered ${response.status}.`);
+      await refresh();
+    }
+
+    function render() {
+      $("stock").innerHTML = (state.stock ?? []).map((s) => `<div><span class="muted">${esc(s.product)}</span><b>${s.available}</b></div>`).join("");
+
+      const orders = state.orders ?? [];
+      $("noOrders").hidden = orders.length > 0;
+      $("orders").innerHTML = orders.map((o) => {
+        const result = o.result ?? "running";
+        return `<tr><td class="mono">${o.id}</td><td>${o.quantity} × ${esc(o.product)}</td><td class="mono">${money(o.amount)}</td>
+          <td class="mono">…${o.cardLast4}</td><td><span class="pill ${result.replace(/ /g, "-")}">${esc(result)}</span></td></tr>`;
+      }).join("");
+
+      const items = state.timeline ?? [];
+      $("empty").hidden = items.length > 0;
+      $("timeline").innerHTML = items.map((t) =>
+        `<li class="${t.text.startsWith("↩") ? "comp" : ""}"><time>${new Date(t.at).toLocaleTimeString()}</time><span class="order">${t.order}</span>${esc(t.text)}</li>`).join("");
+    }
+
+    async function refresh() {
+      try { state = await (await fetch("/api/state")).json(); } catch { /* the app is restarting */ }
+      render();
+    }
+
+    refresh();
+    setInterval(refresh, 1000);
+  </script>
+</body>
+</html>
